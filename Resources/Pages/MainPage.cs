@@ -8,25 +8,14 @@ public class MainPage
     private static readonly string DestinationInput = "#bigsearch-query-location-input";
     private static readonly string CheckInDate = "xpath=//div[normalize-space()='Check in']";
     private static readonly string CheckOutDate = "xpath=//div[normalize-space()='Check out']";
-    
-    public static MainPage Instance => new MainPage().InitializeAsync().GetAwaiter().GetResult();
-    
-    private async Task<MainPage> InitializeAsync()
-    {
-        await Navigate();
-        return this;
-    }
 
-    private async Task Navigate()
+    public static MainPage Instance { get; } = new();
+
+    public MainPage Navigate()
     {
         ExtentReportHolder.LogMessage("Opening the main page...");
-        var page = Playwright.Instance.Page;
-        if (page is null)
-        {
-            Playwright.Instance.OpenBrowser();
-            page = Playwright.Instance.Page;
-        }
-        await page!.GotoAsync(BaseUrl);
+        Playwright.Instance.Page?.GotoAsync(BaseUrl).GetAwaiter().GetResult();
+        return this;
     }
 
     public MainPage ChooseDestination(string destination)

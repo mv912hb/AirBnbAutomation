@@ -42,54 +42,31 @@ public class Playwright
         _browser!.CloseAsync().GetAwaiter().GetResult();
     }
 
-    public async Task<IElementHandle?> FindElement(string selector, int timeoutInSeconds = 10)
+    public IElementHandle? FindElement(string selector, int timeoutInSeconds = 10)
     {
         if (_page is null) OpenBrowser();
-        return await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
+        return _page!
+            .WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 })
+            .GetAwaiter()
+            .GetResult();
     }
     
-    public void TypeToElement(string selector, string text) => FindElement(selector).GetAwaiter().GetResult()?.FillAsync(text);
+    public void TypeToElement(string selector, string text) => FindElement(selector)?.FillAsync(text);
     
-    public void ClickOnElement(string selector) => FindElement(selector).GetAwaiter().GetResult()?.ClickAsync();
-    
-    public async Task<IEnumerable<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
-    {
-        if (_page == null) throw new InvalidOperationException("The browser page is not initialized.");
-        await _page.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
-        return await _page.QuerySelectorAllAsync(selector);
-    }
-
-    public async Task<bool> IsElementDisplayed(string selector)
-    {
-        try
-        {
-            var element = await FindElement(selector);
-            return element != null && await element.IsVisibleAsync();
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    public void NavigateToUrl(string url)
-    {
-        if (_page == null) OpenBrowser();
-        _page?.GotoAsync(url).GetAwaiter().GetResult();
-    }
+    public void ClickOnElement(string selector) => FindElement(selector)?.ClickAsync();
 
     public async Task RestartBrowser()
     {
         CloseBrowser();
-        await Task.Delay(2000); // Wait for 2 seconds
+        await Task.Delay(2000);
         OpenBrowser();
     }
 
-    public async Task RefreshPage() => await _page?.ReloadAsync();
+    public void RefreshPage() => _page?.ReloadAsync();
 
-    public async Task ScrollToTopOfPage()
+    public void ScrollToTopOfPage()
     {
         if (_page == null) throw new InvalidOperationException("The browser page is not initialized.");
-        await _page.EvaluateAsync("window.scrollTo(0, 0);");
+        _page.EvaluateAsync("window.scrollTo(0, 0);");
     }
 }
