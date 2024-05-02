@@ -14,51 +14,43 @@ public class Playwright
     {
         get
         {
-            if (_page is null) OpenBrowser().Wait();
+            if (_page is null) OpenBrowser();
             return _page;
         }
     }
 
-    public async Task OpenBrowser()
+    public void OpenBrowser()
     {
         ExtentReportHolder.LogMessage("Opening the browser...");
         if (_page is not null) return;
 
-        var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        var playwright = Microsoft.Playwright.Playwright.CreateAsync().GetAwaiter().GetResult();
+        _browser = playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             Headless = false,
             Args = new[] { "--start-fullscreen" }
-        });
-        _page = await _browser.NewPageAsync();
+        }).GetAwaiter().GetResult();
+        _page = _browser.NewPageAsync().GetAwaiter().GetResult();
     }
 
-    public async Task CloseBrowser()
+    public void CloseBrowser()
     {
         ExtentReportHolder.LogMessage("Closing the browser...");
-        if (_page == null) return;
-        await _page.CloseAsync();
+        if (_page is null) return;
+        _page.CloseAsync().GetAwaiter().GetResult();
         _page = null;
-        await _browser!.CloseAsync();
+        _browser!.CloseAsync().GetAwaiter().GetResult();
     }
 
     public async Task<IElementHandle?> FindElement(string selector, int timeoutInSeconds = 10)
     {
-        if (_page is null) await OpenBrowser();
+        if (_page is null) OpenBrowser();
         return await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
     }
     
-    public async Task TypeToElement(string selector, string text)
-    {
-        var element = await FindElement(selector);
-        if (element is not null) await element.FillAsync(text);
-    }
+    public void TypeToElement(string selector, string text) => FindElement(selector).GetAwaiter().GetResult()?.FillAsync(text);
     
-    public async Task ClickOnElement(string selector)
-    {
-        var element = await FindElement(selector);
-        if (element is not null) await element.ClickAsync();
-    }
+    public void ClickOnElement(string selector) => FindElement(selector).GetAwaiter().GetResult()?.ClickAsync();
     
     public async Task<IEnumerable<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
@@ -80,17 +72,17 @@ public class Playwright
         }
     }
 
-    public async Task NavigateToUrl(string url)
+    public void NavigateToUrl(string url)
     {
-        if (_page == null) await OpenBrowser();
-        await _page.GotoAsync(url);
+        if (_page == null) OpenBrowser();
+        _page?.GotoAsync(url).GetAwaiter().GetResult();
     }
 
     public async Task RestartBrowser()
     {
-        await CloseBrowser();
+        CloseBrowser();
         await Task.Delay(2000); // Wait for 2 seconds
-        await OpenBrowser();
+        OpenBrowser();
     }
 
     public async Task RefreshPage() => await _page?.ReloadAsync();

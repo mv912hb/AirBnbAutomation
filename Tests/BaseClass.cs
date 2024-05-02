@@ -13,7 +13,7 @@ public class BaseClass
     public void BeforeSuite()
     {
         ExtentReportHolder.InitializeReport();
-        Playwright.Instance.OpenBrowser().GetAwaiter().GetResult();
+        Playwright.Instance.OpenBrowser();
     }
 
     [SetUp]
@@ -25,19 +25,16 @@ public class BaseClass
     }
 
     [TearDown]
-    public async Task AfterMethod()
+    public void AfterMethod()
     {
         var status = TestContext.CurrentContext.Result.Outcome.Status;
         var stackTrace = TestContext.CurrentContext.Result.StackTrace;
         var errorMessage = TestContext.CurrentContext.Result.Message;
 
-        await ExtentReportHolder.LogTestResult(_test, status, TestContext.CurrentContext.Test.Name, errorMessage, stackTrace);
+        ExtentReportHolder.LogTestResult(_test, status, TestContext.CurrentContext.Test.Name, errorMessage, stackTrace);
         ExtentReportHolder.FlushReport();
     }
 
     [OneTimeTearDown]
-    public void AfterSuite()
-    {
-        Playwright.Instance.CloseBrowser().GetAwaiter().GetResult();
-    }
+    public void AfterSuite() => Playwright.Instance.CloseBrowser();
 }

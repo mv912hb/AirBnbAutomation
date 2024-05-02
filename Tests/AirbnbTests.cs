@@ -7,10 +7,10 @@ namespace TestAssignment.Tests;
 public class AirbnbTests : BaseClass
 {
     [Test]
-    public async Task TestNavigateAndTypeDestination()
+    public void AirbnbTest()
     {
-        await MainPage.Instance
-            .Navigate()
-            .ContinueWith(async page => await page.Result.ChooseDestination("Tel-Aviv"));
+        MainPage.Instance
+            .ChooseDestination("Tel-Aviv")
+            .ChooseDates("05/14/2024", "05/19/2024");
     }
 }

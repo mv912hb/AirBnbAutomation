@@ -62,9 +62,9 @@ public static class ExtentReportHolder
 
     public static void FlushReport() => _extent!.Flush();
 
-    public static async Task LogTestResult(ExtentTest? test, TestStatus status, string testName, string message = "", string? stackTrace = "")
+    public static void LogTestResult(ExtentTest? test, TestStatus status, string testName, string message = "", string? stackTrace = "")
     {
-        var screenshotPath = await TakeScreenshot(testName);
+        var screenshotPath = TakeScreenshot(testName);
 
         _ = status switch
         {
@@ -81,7 +81,7 @@ public static class ExtentReportHolder
         };
     }
     
-    private static async Task<string> TakeScreenshot(string testName)
+    private static string TakeScreenshot(string testName)
     {
         var page = Playwright.Instance.Page;
         if (page is null) throw new InvalidOperationException("Browser page is not initialized.");
@@ -91,7 +91,7 @@ public static class ExtentReportHolder
 
         var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
 
-        await page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
+        page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
         return screenshotFilePath;
     }
 }
