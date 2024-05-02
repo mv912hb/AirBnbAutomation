@@ -7,11 +7,8 @@ namespace TestAssignment.Tests;
 public class AirbnbTests : BaseClass
 {
     [Test]
-    public void AirbnbTest()
+    public async Task AirbnbTest()
     {
-        MainPage.Instance
-            .Navigate()
-            .ChooseDestination("Tel-Aviv")
-            .ChooseDates("05/14/2024", "05/19/2024");
+        await MainPage.Instance.SearchForApartments("Tel-Aviv", "05/14/2024", "05/19/2024",2, 2);
     }
 }
