@@ -46,12 +46,14 @@ public class Playwright
     public async Task<IElementHandle?> FindElement(string selector, int timeoutInSeconds = 10) =>
         await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
 
-    public async Task<IEnumerable<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
+    public async Task<List<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
-        var element = await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
-        if (element is not null) return await _page!.QuerySelectorAllAsync(selector);
-        return new List<IElementHandle>();
+        await _page!.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = timeoutInSeconds * 1000 });
+        
+        var elements = await _page!.QuerySelectorAllAsync(selector);
+        return elements.ToList();
     }
+
     
     public async Task TypeToElement(string selector, string text)
     {
