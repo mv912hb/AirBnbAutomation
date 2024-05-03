@@ -33,7 +33,7 @@ public class SearchResultsPage : BasePage
         try
         {
             var popupText = await Playwright.Instance.GetElementText(
-                await Playwright.GetPage()!.WaitForSelectorAsync(PriceBreakdown));
+                (await Playwright.GetPage()!.WaitForSelectorAsync(PriceBreakdown))!);
 
             if (popupText is null) throw new Exception("Failed to retrieve text: Popup content is null.");
             

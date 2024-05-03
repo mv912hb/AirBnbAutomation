@@ -44,10 +44,10 @@ public class Playwright
         return elements.ToList();
     }
 
-    public async Task TypeToElement(string selector, string text)
+    public async Task TypeToElement(string selector, string? text)
     {
         var element = await Page!.WaitForSelectorAsync(selector);
-        if (element is not null) await element.FillAsync(text);
+        if (element is not null) await element.FillAsync(text!);
     }
 
     public async Task ClickOnElement(string selector)

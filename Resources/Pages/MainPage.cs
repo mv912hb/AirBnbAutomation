@@ -23,7 +23,7 @@ public class MainPage : BasePage
         await ClosePopup();
     }
 
-    private async Task ChooseDestination(string destination)
+    private async Task ChooseDestination(string? destination)
     {
         ExtentReportHolder.LogMessage($"Searching for destination: {destination}");
         await Playwright.Instance.TypeToElement(DestinationInput, destination);
@@ -58,7 +58,7 @@ public class MainPage : BasePage
         await Playwright.Instance.ClickOnElement(SearchButton);
     }
 
-    public async Task SearchForApartments(string destination, string dateFrom, string dateTo, int adults, int children)
+    public async Task SearchForApartments(string? destination, string dateFrom, string dateTo, int adults, int children)
     {
         await Navigate();
         await ChooseDestination(destination);

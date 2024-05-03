@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using TestAssignment.Resources.FilesForTests;
 using TestAssignment.Resources.Pages;
 
 namespace TestAssignment.Tests;
@@ -6,12 +7,12 @@ namespace TestAssignment.Tests;
 [TestFixture]
 public class AirbnbTests : BaseClass
 {
-    [Test]
-    public async Task AirbnbTest()
+    [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.GetTestCases))]
+    public async Task AirbnbTest(string city, string dateFrom, string dateTo, int price, int cleaningFee)
     {
-        await MainPage.Instance.SearchForApartments("Tel-Aviv", "05/14/2024", "05/19/2024", 3, 3);
-        await SearchResultsPage.Instance.FindApartmentUnderPrice(1000);
+        await MainPage.Instance.SearchForApartments(city, dateFrom, dateTo, 2, 2);
+        await SearchResultsPage.Instance.FindApartmentUnderPrice(price);
         Assert.That(await SearchResultsPage.Instance.GetCleaningFee(),
-            Is.LessThanOrEqualTo(200), "Cleaning fee is higher than expected");
+            Is.LessThanOrEqualTo(cleaningFee), "Cleaning fee is higher than expected");
     }
 }
