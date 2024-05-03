@@ -10,7 +10,7 @@ public class BaseClass
     private ExtentTest? _test;
 
     [OneTimeSetUp]
-    public async Task BeforeSuiteAsync()
+    public async Task BeforeSuite()
     {
         ExtentReportHolder.InitializeReport();
         await Playwright.Instance.OpenBrowser();
@@ -35,6 +35,9 @@ public class BaseClass
         ExtentReportHolder.FlushReport();
     }
 
-    // [OneTimeTearDown]
-    // public void AfterSuite() => Playwright.Instance.CloseBrowser();
+    [OneTimeTearDown]
+    public async Task AfterSuite()
+    {
+        await Playwright.Instance.CloseBrowser();
+    }
 }

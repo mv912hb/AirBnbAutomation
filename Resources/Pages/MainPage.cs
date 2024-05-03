@@ -12,24 +12,23 @@ public class MainPage : BasePage
     private static readonly string AddAdult = "xpath=//button[@data-testid='stepper-adults-increase-button']";
     private static readonly string AddChildren = "xpath=//button[@data-testid='stepper-children-increase-button']";
     private static readonly string SearchButton = "xpath=//button[@data-testid='structured-search-input-search-button']";
-    
+
     public static MainPage Instance { get; } = new();
 
     private async Task Navigate()
     {
         ExtentReportHolder.LogMessage("Opening the main page...");
-        if (Playwright.Instance.Page is null) return;
-        await Playwright.Instance.Page.GotoAsync(BaseUrl);
+        if (Playwright.GetPage() is null) return;
+        await Playwright.GetPage()!.GotoAsync(BaseUrl);
         await ClosePopup();
     }
 
     private async Task ChooseDestination(string destination)
     {
         ExtentReportHolder.LogMessage($"Searching for destination: {destination}");
-        await Playwright.Instance.RefreshPage();
         await Playwright.Instance.TypeToElement(DestinationInput, destination);
     }
-    
+
     private string GetDateSelector(string date) => $"div[data-testid='calendar-day-{date}'][data-is-day-blocked='false']";
 
     private async Task ChooseDates(string dateFrom, string dateTo)
@@ -38,7 +37,7 @@ public class MainPage : BasePage
 
         await Playwright.Instance.ClickOnElement(CheckInDate);
         await Playwright.Instance.ClickOnElement(GetDateSelector(dateFrom));
-    
+
         await Playwright.Instance.ClickOnElement(CheckOutDate);
         await Playwright.Instance.ClickOnElement(GetDateSelector(dateTo));
     }
@@ -46,9 +45,9 @@ public class MainPage : BasePage
     private async Task AddGuests(int adults, int children)
     {
         ExtentReportHolder.LogMessage($"Adding guests... Adults: {adults}, children: {children}");
-    
+
         await Playwright.Instance.ClickOnElement(Guests);
-    
+
         for (var i = 0; i < adults; i++) await Playwright.Instance.ClickOnElement(AddAdult);
         for (var i = 0; i < children; i++) await Playwright.Instance.ClickOnElement(AddChildren);
     }
@@ -58,7 +57,7 @@ public class MainPage : BasePage
         ExtentReportHolder.LogMessage("Pressing on search button");
         await Playwright.Instance.ClickOnElement(SearchButton);
     }
-    
+
     public async Task SearchForApartments(string destination, string dateFrom, string dateTo, int adults, int children)
     {
         await Navigate();

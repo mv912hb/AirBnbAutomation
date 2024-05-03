@@ -6,7 +6,7 @@ namespace TestAssignment.Resources.Pages;
 public class BasePage
 {
     private static readonly string CloseButton = "xpath=//button[@aria-label='Close']";
-    
+
     protected async Task ClosePopup()
     {
         ExtentReportHolder.LogMessage("Checking for startup popup...");

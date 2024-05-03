@@ -62,7 +62,8 @@ public static class ExtentReportHolder
 
     public static void FlushReport() => _extent!.Flush();
 
-    public static void LogTestResult(ExtentTest? test, TestStatus status, string testName, string message = "", string? stackTrace = "")
+    public static void LogTestResult(ExtentTest? test, TestStatus status, string testName, string message = "",
+        string? stackTrace = "")
     {
         var screenshotPath = TakeScreenshot(testName);
 
@@ -70,26 +71,26 @@ public static class ExtentReportHolder
         {
             TestStatus.Failed => test?.Fail(message).Fail(stackTrace)
                 .Fail(MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotPath).Build()),
-            
+
             TestStatus.Passed => test?.Pass(message)
                 .Pass(MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotPath).Build()),
-            
+
             TestStatus.Skipped => test?.Skip("Test skipped")
                 .Skip(MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotPath).Build()),
-            
+
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
     }
-    
+
     private static string TakeScreenshot(string testName)
     {
-        var page = Playwright.Instance.Page;
+        var page = Playwright.GetPage();
         if (page is null) throw new InvalidOperationException("Browser page is not initialized.");
 
         var screenshotDirectory = Path.Combine(ReportDirectory, "Screenshots");
         if (!Directory.Exists(screenshotDirectory)) Directory.CreateDirectory(screenshotDirectory);
 
-        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now}.png");
 
         page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
         return screenshotFilePath;
