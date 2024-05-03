@@ -10,10 +10,10 @@ public class BaseClass
     private ExtentTest? _test;
 
     [OneTimeSetUp]
-    public void BeforeSuite()
+    public async Task BeforeSuiteAsync()
     {
         ExtentReportHolder.InitializeReport();
-        Playwright.Instance.OpenBrowser();
+        await Playwright.Instance.OpenBrowser();
     }
 
     [SetUp]

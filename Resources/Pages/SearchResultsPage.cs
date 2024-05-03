@@ -2,10 +2,9 @@
 
 namespace TestAssignment.Resources.Pages;
 
-public class SearchResultsPage
+public class SearchResultsPage : BasePage
 {
     private static readonly string ApartmentCard = "xpath=//div[@data-testid='card-container']";
-    private static readonly string NextPage = "xpath=//a[contains(@aria-label,'Next')]";
     
     public static SearchResultsPage Instance { get; } = new();
     

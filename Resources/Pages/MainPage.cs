@@ -1,9 +1,8 @@
-﻿using Microsoft.Playwright;
-using TestAssignment.Resources.Utilities;
+﻿using TestAssignment.Resources.Utilities;
 
 namespace TestAssignment.Resources.Pages;
 
-public class MainPage
+public class MainPage : BasePage
 {
     private const string BaseUrl = "https://www.airbnb.com/";
     private static readonly string DestinationInput = "#bigsearch-query-location-input";
@@ -13,7 +12,6 @@ public class MainPage
     private static readonly string AddAdult = "xpath=//button[@data-testid='stepper-adults-increase-button']";
     private static readonly string AddChildren = "xpath=//button[@data-testid='stepper-children-increase-button']";
     private static readonly string SearchButton = "xpath=//button[@data-testid='structured-search-input-search-button']";
-    private static readonly string CloseButton = "xpath=//button[@aria-label='Close']";
     
     public static MainPage Instance { get; } = new();
 
@@ -43,19 +41,6 @@ public class MainPage
     
         await Playwright.Instance.ClickOnElement(CheckOutDate);
         await Playwright.Instance.ClickOnElement(GetDateSelector(dateTo));
-    }
-    
-    private async Task ClosePopup()
-    {
-        ExtentReportHolder.LogMessage("Checking for startup popup...");
-        try
-        {
-            await Playwright.Instance.ClickOnElement(CloseButton);
-        }
-        catch (PlaywrightException)
-        {
-            ExtentReportHolder.LogMessage("Popup did not appear...");
-        }
     }
 
     private async Task AddGuests(int adults, int children)
