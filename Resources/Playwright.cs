@@ -43,8 +43,11 @@ public class Playwright
         _browser!.CloseAsync();
     }
 
-    public async Task<IElementHandle?> FindElement(string selector, int timeoutInSeconds = 10) =>
-        await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
+    private async Task<IElementHandle?> FindElement(string selector, int timeoutInSeconds = 10)
+    {
+        await _page!.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = timeoutInSeconds * 1000 });
+        return await _page!.WaitForSelectorAsync(selector, new PageWaitForSelectorOptions { Timeout = timeoutInSeconds * 1000 });
+    }
 
     public async Task<List<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
@@ -53,7 +56,6 @@ public class Playwright
         var elements = await _page!.QuerySelectorAllAsync(selector);
         return elements.ToList();
     }
-
     
     public async Task TypeToElement(string selector, string text)
     {
@@ -63,16 +65,12 @@ public class Playwright
     
     public async Task ClickOnElement(string selector)
     {
+        await _page!.WaitForLoadStateAsync(LoadState.Load);
         var element = await FindElement(selector);
         if (element is not null) await element.ClickAsync();
     }
-    
-    public async Task<string?> GetElementText(string selector)
-    {
-        var element = await FindElement(selector);
-        if (element is not null) return await element.InnerTextAsync();
-        return null;
-    }
+
+    public async Task<string?> GetElementText(IElementHandle element) => await element.InnerTextAsync();
     
     public async Task RestartBrowser()
     {

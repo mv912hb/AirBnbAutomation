@@ -35,6 +35,6 @@ public class BaseClass
         ExtentReportHolder.FlushReport();
     }
 
-    [OneTimeTearDown]
-    public void AfterSuite() => Playwright.Instance.CloseBrowser();
+    // [OneTimeTearDown]
+    // public void AfterSuite() => Playwright.Instance.CloseBrowser();
 }
