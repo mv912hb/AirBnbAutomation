@@ -25,6 +25,7 @@ public class MainPage : BasePage
 
     private async Task ChooseDestination(string? destination)
     {
+        await Playwright.Instance.RefreshPage();
         ExtentReportHolder.LogMessage($"Searching for destination: {destination}");
         await Playwright.Instance.TypeToElement(DestinationInput, destination);
     }

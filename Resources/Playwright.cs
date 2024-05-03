@@ -12,17 +12,17 @@ public class Playwright
 
     public static IPage? GetPage() => Page;
 
-    public async Task OpenBrowser()
+    public async Task OpenBrowser(string browserType = "Chromium")
     {
-        ExtentReportHolder.LogMessage("Opening the browser...");
-        if (Page is not null) return;
-
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = false
-        });
 
+        var browser = browserType switch
+        {
+            "Firefox" => await playwright.Firefox.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false }),
+            _ => await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false })
+        };
+
+        _browser = browser;
         Page = await _browser.NewPageAsync();
     }
 
