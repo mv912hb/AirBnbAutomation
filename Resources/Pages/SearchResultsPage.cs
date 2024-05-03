@@ -1,39 +1,40 @@
 ﻿using System.Text.RegularExpressions;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using TestAssignment.Resources.Utilities;
 
 namespace TestAssignment.Resources.Pages;
 
 public class SearchResultsPage : BasePage
 {
-    private static readonly string ApartmentCard = "xpath=//div[@data-testid='price-availability-row']";
-    private static readonly string PriceBreakdown = "xpath=//div[@aria-label='Price breakdown']";
+    private static readonly By ApartmentCard = By.XPath("//div[@data-testid='price-availability-row']");
+    private static readonly By PriceBreakdown = By.XPath("//div[@aria-label='Price breakdown']");
 
     public static SearchResultsPage Instance { get; } = new();
 
-    public async Task FindApartmentUnderPrice(int price)
+    public void FindApartmentUnderPrice(int price)
     {
         ExtentReportHolder.LogMessage($"Searching for apartment under the price {price} per night...");
-        do
+        var driver = Selenium.Instance.Driver;
+        var elements = Selenium.Instance.FindElements(ApartmentCard);
+        foreach (var element in elements)
         {
-            var elements = await Playwright.Instance.FindElements(ApartmentCard);
-            foreach (var element in elements)
-            {
-                var text = await Playwright.Instance.GetElementText(element);
-                if (text is null || !GetPricePerNight(text, out var nightlyPrice) || nightlyPrice >= price) continue;
-                await element.ClickAsync();
-                return;
-            }
-        } while (true);
+            var text = Selenium.Instance.GetElementText(element);
+            if (!GetPricePerNight(text, out var nightlyPrice) || nightlyPrice >= price) continue;
+            new Actions(driver).MoveToElement(element).Perform();
+            element.Click();
+            return;
+        }
     }
 
-    public async Task<int> GetCleaningFee()
+    public int GetCleaningFee()
     {
         ExtentReportHolder.LogMessage("Retrieving the cleaning fee from the price breakdown...");
 
         try
         {
-            var popupText = await Playwright.Instance.GetElementText(
-                (await Playwright.GetPage()!.WaitForSelectorAsync(PriceBreakdown))!);
+            var price = Selenium.Instance.FindElement(PriceBreakdown);
+            var popupText = Selenium.Instance.GetElementText(price);
 
             if (popupText is null) throw new Exception("Failed to retrieve text: Popup content is null.");
             

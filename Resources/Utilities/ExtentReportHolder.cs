@@ -1,9 +1,9 @@
 ﻿using AventStack.ExtentReports;
 using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports.Reporter.Config;
-using Microsoft.Playwright;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using OpenQA.Selenium;
 
 namespace TestAssignment.Resources.Utilities;
 
@@ -84,15 +84,17 @@ public static class ExtentReportHolder
 
     private static string TakeScreenshot(string testName)
     {
-        var page = Playwright.GetPage();
-        if (page is null) throw new InvalidOperationException("Browser page is not initialized.");
+        var driver = Selenium.Instance.Driver;
 
         var screenshotDirectory = Path.Combine(ReportDirectory, "Screenshots");
         if (!Directory.Exists(screenshotDirectory)) Directory.CreateDirectory(screenshotDirectory);
 
-        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now}.png");
+        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
 
-        page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
+        if (driver is not ITakesScreenshot takesScreenshot)
+            throw new InvalidOperationException("Driver instance does not support taking screenshots.");
+        var screenshot = takesScreenshot.GetScreenshot();
+        screenshot.SaveAsFile(screenshotFilePath);
         return screenshotFilePath;
     }
 }

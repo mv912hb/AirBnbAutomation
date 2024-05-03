@@ -1,20 +1,20 @@
-﻿using Microsoft.Playwright;
+﻿using OpenQA.Selenium;
 using TestAssignment.Resources.Utilities;
 
 namespace TestAssignment.Resources.Pages;
 
 public class BasePage
 {
-    private static readonly string CloseButton = "xpath=//button[@aria-label='Close']";
+    private static readonly By CloseButton = By.XPath("//button[@aria-label='Close']");
 
-    protected async Task ClosePopup()
+    protected void ClosePopup()
     {
         ExtentReportHolder.LogMessage("Checking for startup popup...");
         try
         {
-            await Playwright.Instance.ClickOnElement(CloseButton);
+            Selenium.Instance.ClickOnElement(CloseButton);
         }
-        catch (PlaywrightException)
+        catch (Exception)
         {
             ExtentReportHolder.LogMessage("Popup did not appear...");
         }
