@@ -92,8 +92,8 @@ public static class ExtentReportHolder
 
         var sanitizedTestName = testName.Replace("/", string.Empty).Replace("\"", string.Empty);
         var screenshotFilePath = Path.Combine(screenshotDirectory, $"{sanitizedTestName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
-
-        page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
+        
+        page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath }).GetAwaiter().GetResult();
         return screenshotFilePath;
     }
 }
