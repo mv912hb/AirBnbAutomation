@@ -26,6 +26,7 @@ public class Playwright
 
         _browser = browser;
         Page = await _browser.NewPageAsync();
+        await Page.SetViewportSizeAsync(1920, 1080);
     }
 
     /// <summary>
@@ -55,7 +56,7 @@ public class Playwright
     
         while (DateTime.UtcNow < endTime)
         {
-            await Task.Delay(1000);
+            await Task.Delay(5000);
             var currentElements = await Page!.QuerySelectorAllAsync(selector);
             if (currentElements.Count != previousCount)
             {
@@ -70,8 +71,7 @@ public class Playwright
 
         return elements;
     }
-
-
+    
     /// <summary>
     /// Types to an element on the page
     /// </summary>
@@ -84,13 +84,27 @@ public class Playwright
     }
 
     /// <summary>
-    /// Clicks on a specified element
+    /// Clicks on a specified element by locator
     /// </summary>
     /// <param name="selector">The selector of the element to click</param>
     public async Task ClickOnElement(string selector)
     {
         var element = await Page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.ClickAsync();
+    }
+    
+    /// <summary>
+    /// Clicks on a specified element
+    /// </summary>
+    /// <param name="element">The element itself</param>
+    public async Task ClickOnElement(IElementHandle element)
+    {
+        await element.WaitForElementStateAsync(ElementState.Stable);
+        
+        await Page!.EvaluateAsync("element => element.scrollIntoView({ behavior: 'smooth', block: 'center' })", element);
+        await Task.Delay(500);
+        
+        await element.ClickAsync();
     }
     
     /// <summary>

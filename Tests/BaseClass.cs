@@ -33,8 +33,5 @@ public class BaseClass
     }
 
     [OneTimeTearDown]
-    public async Task AfterSuite()
-    {
-        await Playwright.Instance.CloseBrowser();
-    }
+    public async Task AfterSuite() => await Playwright.Instance.CloseBrowser();
 }

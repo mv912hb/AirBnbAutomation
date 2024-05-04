@@ -12,6 +12,7 @@ public class MainPage : BasePage
     private static readonly string AddAdult = "xpath=//button[@data-testid='stepper-adults-increase-button']";
     private static readonly string AddChildren = "xpath=//button[@data-testid='stepper-children-increase-button']";
     private static readonly string SearchButton = "xpath=//button[@data-testid='structured-search-input-search-button']";
+    private static readonly string NotExactDays = "xpath=//div[@id='panel--tabs--0']//label[3]";
 
     public static MainPage Instance { get; } = new();
 
@@ -58,6 +59,8 @@ public class MainPage : BasePage
 
         await Playwright.Instance.ClickOnElement(CheckOutDate);
         await Playwright.Instance.ClickOnElement(GetDateSelector(dateTo));
+
+        await Playwright.Instance.ClickOnElement(NotExactDays);
     }
 
     /// <summary>

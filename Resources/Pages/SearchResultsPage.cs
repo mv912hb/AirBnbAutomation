@@ -14,20 +14,19 @@ public class SearchResultsPage : BasePage
     /// Searches for an apartment listed under a specified price
     /// </summary>
     /// <param name="price">Maximum price for nightly rental</param>
-    public async Task FindApartmentUnderPrice(int price) // need to remove do and fix 
+    public async Task FindApartmentUnderPrice(int price)
     {
         ExtentReportHolder.LogMessage($"Searching for apartment under the price {price} per night...");
-        do
+        
+        foreach (var element in await Playwright.Instance.FindElements(ApartmentCard))
         {
-            var elements = await Playwright.Instance.FindElements(ApartmentCard);
-            foreach (var element in elements)
-            {
-                var text = await Playwright.Instance.GetElementText(element);
-                if (text is null || !GetPricePerNight(text, out var nightlyPrice) || nightlyPrice >= price) continue;
-                await element.ClickAsync();
-                return;
-            }
-        } while (true);
+            var text = await Playwright.Instance.GetElementText(element);
+            if (text is null || !GetPricePerNight(text, out var nightlyPrice) || nightlyPrice >= price) continue;
+            await Playwright.Instance.ClickOnElement(element);
+            return;
+        }
+        
+        throw new Exception($"Apartment under price {price} is not found");
     }
     
     /// <summary>
@@ -78,13 +77,5 @@ public class SearchResultsPage : BasePage
         }
 
         return false;
-    }
-    
-    public async Task<List<string>> GetAllPageResults()
-    {
-        var elements = await Playwright.Instance.FindElements(ApartmentCard);
-        var tasks = elements.Select(element => element.InnerTextAsync()).ToList();
-        var results = await Task.WhenAll(tasks);
-        return results.ToList();
     }
 }
