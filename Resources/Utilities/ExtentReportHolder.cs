@@ -84,13 +84,14 @@ public static class ExtentReportHolder
 
     private static string TakeScreenshot(string testName)
     {
-        var page = Playwright.GetPage();
+        var page = Playwright.Instance.Page;
         if (page is null) throw new InvalidOperationException("Browser page is not initialized.");
 
         var screenshotDirectory = Path.Combine(ReportDirectory, "Screenshots");
         if (!Directory.Exists(screenshotDirectory)) Directory.CreateDirectory(screenshotDirectory);
 
-        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{testName}_{DateTime.Now}.png");
+        var sanitizedTestName = testName.Replace("/", string.Empty).Replace("\"", string.Empty);
+        var screenshotFilePath = Path.Combine(screenshotDirectory, $"{sanitizedTestName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
 
         page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotFilePath });
         return screenshotFilePath;

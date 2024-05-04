@@ -6,11 +6,11 @@ namespace TestAssignment.Resources;
 public class Playwright
 {
     private IBrowser? _browser;
-    private static IPage? Page { get; set; }
-
+    private IPage? _page;
+    
     public static Playwright Instance { get; } = new();
-
-    public static IPage? GetPage() => Page;
+    
+    public IPage? Page => _page;
 
     public async Task OpenBrowser(string browserType = "Chromium")
     {
@@ -23,40 +23,42 @@ public class Playwright
         };
 
         _browser = browser;
-        Page = await _browser.NewPageAsync();
+        _page = await _browser.NewPageAsync();
     }
 
     public async Task CloseBrowser()
     {
         ExtentReportHolder.LogMessage("Closing the browser...");
-        if (Page is null) return;
+        if (_page is null) return;
 
-        await Page.CloseAsync();
-        Page = null;
-        if (_browser is not null) await _browser.DisposeAsync();
+        await _page.CloseAsync();
+        _page = null;
+        if (_browser is not null) await _browser.CloseAsync();
     }
 
     public async Task<List<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
-        await Page!.WaitForLoadStateAsync(LoadState.NetworkIdle,
+        await _page!.WaitForLoadStateAsync(LoadState.NetworkIdle,
             new PageWaitForLoadStateOptions { Timeout = timeoutInSeconds * 1000 });
-        var elements = await Page!.QuerySelectorAllAsync(selector);
+        var elements = await _page!.QuerySelectorAllAsync(selector);
         return elements.ToList();
     }
 
     public async Task TypeToElement(string selector, string? text)
     {
-        var element = await Page!.WaitForSelectorAsync(selector);
+        var element = await _page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.FillAsync(text!);
     }
 
     public async Task ClickOnElement(string selector)
     {
-        var element = await Page!.WaitForSelectorAsync(selector);
+        var element = await _page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.ClickAsync();
     }
 
+    public async Task ScrollPageUp() => await _page!.Mouse.UpAsync();
+    
     public async Task<string?> GetElementText(IElementHandle element) => await element.InnerTextAsync();
 
-    public async Task RefreshPage() => await Page!.ReloadAsync();
+    public async Task RefreshPage() => await _page!.ReloadAsync();
 }

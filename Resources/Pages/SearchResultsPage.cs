@@ -10,9 +10,10 @@ public class SearchResultsPage : BasePage
 
     public static SearchResultsPage Instance { get; } = new();
 
-    public async Task FindApartmentUnderPrice(int price)
+    public async Task FindApartmentUnderPrice(int price) // need to remove do and fix 
     {
         ExtentReportHolder.LogMessage($"Searching for apartment under the price {price} per night...");
+        var teds = await Playwright.Instance.FindElements(ApartmentCard);
         do
         {
             var elements = await Playwright.Instance.FindElements(ApartmentCard);
@@ -33,7 +34,7 @@ public class SearchResultsPage : BasePage
         try
         {
             var popupText = await Playwright.Instance.GetElementText(
-                (await Playwright.GetPage()!.WaitForSelectorAsync(PriceBreakdown))!);
+                (await Playwright.Instance.Page!.WaitForSelectorAsync(PriceBreakdown))!);
 
             if (popupText is null) throw new Exception("Failed to retrieve text: Popup content is null.");
             

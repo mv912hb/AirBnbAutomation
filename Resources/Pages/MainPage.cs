@@ -18,14 +18,15 @@ public class MainPage : BasePage
     private async Task Navigate()
     {
         ExtentReportHolder.LogMessage("Opening the main page...");
-        if (Playwright.GetPage() is null) return;
-        await Playwright.GetPage()!.GotoAsync(BaseUrl);
+        if (Playwright.Instance.Page is null) return;
+        await Playwright.Instance.Page.GotoAsync(BaseUrl);
         await ClosePopup();
     }
 
     private async Task ChooseDestination(string? destination)
     {
-        await Playwright.Instance.RefreshPage();
+        Thread.Sleep(3000);
+        await Playwright.Instance.ScrollPageUp();
         ExtentReportHolder.LogMessage($"Searching for destination: {destination}");
         await Playwright.Instance.TypeToElement(DestinationInput, destination);
     }

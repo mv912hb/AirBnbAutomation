@@ -21,7 +21,7 @@ public class BaseClass
     }
 
     [TearDown]
-    public void AfterMethod()
+    public async Task AfterMethod()
     {
         var status = TestContext.CurrentContext.Result.Outcome.Status;
         var stackTrace = TestContext.CurrentContext.Result.StackTrace;
@@ -29,6 +29,7 @@ public class BaseClass
 
         ExtentReportHolder.LogTestResult(_test, status, TestContext.CurrentContext.Test.Name, errorMessage, stackTrace);
         ExtentReportHolder.FlushReport();
+        await Playwright.Instance.CloseBrowser();
     }
 
     [OneTimeTearDown]
