@@ -6,18 +6,15 @@ namespace TestAssignment.Resources;
 public class Playwright
 {
     private IBrowser? _browser;
-    private IPage? _page;
-    
     public static Playwright Instance { get; } = new();
-    
-    public IPage? Page => _page;
+    public IPage? Page { get; private set; }
 
     /// <summary>
     /// Opens a new browser
     /// </summary>
     /// <param name="browserType">Type of the browser to open</param>
     /// <returns>The active page of the launched browser</returns>
-    public async Task<IPage> OpenBrowser(string browserType = "Chromium")
+    public async Task OpenBrowser(string browserType = "Chromium")
     {
         var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
 
@@ -28,8 +25,7 @@ public class Playwright
         };
 
         _browser = browser;
-        _page = await _browser.NewPageAsync();
-        return _page;
+        Page = await _browser.NewPageAsync();
     }
 
     /// <summary>
@@ -38,10 +34,10 @@ public class Playwright
     public async Task CloseBrowser()
     {
         ExtentReportHolder.LogMessage("Closing the browser...");
-        if (_page is null) return;
+        if (Page is null) return;
 
-        await _page.CloseAsync();
-        _page = null;
+        await Page.CloseAsync();
+        Page = null;
         if (_browser is not null) await _browser.CloseAsync();
     }
 
@@ -53,11 +49,28 @@ public class Playwright
     /// <returns>A list of element handles.</returns>
     public async Task<List<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
-        await _page!.WaitForLoadStateAsync(LoadState.Load,
-            new PageWaitForLoadStateOptions { Timeout = timeoutInSeconds * 1000 });
-        var elements = await _page!.QuerySelectorAllAsync(selector);
-        return elements.ToList();
+        var endTime = DateTime.UtcNow.AddSeconds(timeoutInSeconds);
+        var elements = new List<IElementHandle>();
+        var previousCount = 0;
+    
+        while (DateTime.UtcNow < endTime)
+        {
+            await Task.Delay(1000);
+            var currentElements = await Page!.QuerySelectorAllAsync(selector);
+            if (currentElements.Count != previousCount)
+            {
+                elements = currentElements.ToList();
+                previousCount = elements.Count;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return elements;
     }
+
 
     /// <summary>
     /// Types to an element on the page
@@ -66,7 +79,7 @@ public class Playwright
     /// <param name="text">The text typed to the element</param>
     public async Task TypeToElement(string selector, string? text)
     {
-        var element = await _page!.WaitForSelectorAsync(selector);
+        var element = await Page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.FillAsync(text!);
     }
 
@@ -76,7 +89,7 @@ public class Playwright
     /// <param name="selector">The selector of the element to click</param>
     public async Task ClickOnElement(string selector)
     {
-        var element = await _page!.WaitForSelectorAsync(selector);
+        var element = await Page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.ClickAsync();
     }
     
@@ -86,9 +99,4 @@ public class Playwright
     /// <param name="element">The element to retrieve text from</param>
     /// <returns>The text of element</returns>
     public async Task<string?> GetElementText(IElementHandle element) => await element.InnerTextAsync();
-
-    /// <summary>
-    /// Reloads the current page
-    /// </summary>
-    public async Task RefreshPage() => await _page!.ReloadAsync();
 }

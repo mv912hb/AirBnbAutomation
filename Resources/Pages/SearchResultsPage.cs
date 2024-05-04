@@ -10,10 +10,13 @@ public class SearchResultsPage : BasePage
 
     public static SearchResultsPage Instance { get; } = new();
 
+    /// <summary>
+    /// Searches for an apartment listed under a specified price
+    /// </summary>
+    /// <param name="price">Maximum price for nightly rental</param>
     public async Task FindApartmentUnderPrice(int price) // need to remove do and fix 
     {
         ExtentReportHolder.LogMessage($"Searching for apartment under the price {price} per night...");
-        var teds = await Playwright.Instance.FindElements(ApartmentCard);
         do
         {
             var elements = await Playwright.Instance.FindElements(ApartmentCard);
@@ -26,7 +29,11 @@ public class SearchResultsPage : BasePage
             }
         } while (true);
     }
-
+    
+    /// <summary>
+    /// Retrieves the cleaning fee from the price breakdown provided
+    /// </summary>
+    /// <returns>The cleaning fee as an integer.</returns>
     public async Task<int> GetCleaningFee()
     {
         ExtentReportHolder.LogMessage("Retrieving the cleaning fee from the price breakdown...");
@@ -53,6 +60,12 @@ public class SearchResultsPage : BasePage
         }
     }
 
+    /// <summary>
+    /// Parses the nightly price from an araptment description
+    /// </summary>
+    /// <param name="description">The text description from an apartment</param>
+    /// <param name="price">Output parameter to store the parsed price</param>
+    /// <returns>True if the price was parsed</returns>
     private bool GetPricePerNight(string? description, out int price)
     {
         price = 0;
@@ -65,5 +78,13 @@ public class SearchResultsPage : BasePage
         }
 
         return false;
+    }
+    
+    public async Task<List<string>> GetAllPageResults()
+    {
+        var elements = await Playwright.Instance.FindElements(ApartmentCard);
+        var tasks = elements.Select(element => element.InnerTextAsync()).ToList();
+        var results = await Task.WhenAll(tasks);
+        return results.ToList();
     }
 }
