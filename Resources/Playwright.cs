@@ -38,7 +38,7 @@ public class Playwright
 
     public async Task<List<IElementHandle>> FindElements(string selector, int timeoutInSeconds = 10)
     {
-        await _page!.WaitForLoadStateAsync(LoadState.NetworkIdle,
+        await _page!.WaitForLoadStateAsync(LoadState.Load,
             new PageWaitForLoadStateOptions { Timeout = timeoutInSeconds * 1000 });
         var elements = await _page!.QuerySelectorAllAsync(selector);
         return elements.ToList();
@@ -55,8 +55,6 @@ public class Playwright
         var element = await _page!.WaitForSelectorAsync(selector);
         if (element is not null) await element.ClickAsync();
     }
-
-    public async Task ScrollPageUp() => await _page!.Mouse.UpAsync();
     
     public async Task<string?> GetElementText(IElementHandle element) => await element.InnerTextAsync();
 

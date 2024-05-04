@@ -26,7 +26,6 @@ public class MainPage : BasePage
     private async Task ChooseDestination(string? destination)
     {
         Thread.Sleep(3000);
-        await Playwright.Instance.ScrollPageUp();
         ExtentReportHolder.LogMessage($"Searching for destination: {destination}");
         await Playwright.Instance.TypeToElement(DestinationInput, destination);
     }
